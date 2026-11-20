@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="제비과 새 중 오늘 만날 한 종을 무작위로 뽑아보세요."
+    />
+    <title>오늘의 제비 뽑기</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+        color: #17364b;
+        background: #eaf6fb;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        overflow-x: hidden;
+        background:
+          radial-gradient(ellipse at 12% 18%, #fff 0, #ffffff00 23rem),
+          linear-gradient(160deg, #eaf8ff 0%, #dff3fa 55%, #f5fbf7 100%);
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .page {
+        position: relative;
+        display: grid;
+        min-height: 100vh;
+        place-items: center;
+        padding: 48px 20px;
+        isolation: isolate;
+      }
+
+      .sun {
+        position: absolute;
+        z-index: -1;
+        top: 8%;
+        right: 12%;
+        width: 96px;
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: #ffdc8a;
+        box-shadow: 0 0 0 18px #ffdc8a2b, 0 0 90px #ffdc8a70;
+      }
+
+      .cloud {
+        position: absolute;
+        z-index: -1;
+        width: 130px;
+        height: 36px;
+        border-radius: 50px;
+        background: #ffffff9e;
+        filter: blur(1px);
+      }
+
+      .cloud::before,
+      .cloud::after {
+        position: absolute;
+        bottom: 8px;
+        border-radius: 50%;
+        background: inherit;
+        content: "";
+      }
+
+      .cloud::before {
+        left: 20px;
+        width: 46px;
+        height: 46px;
+      }
+
+      .cloud::after {
+        right: 19px;
+        width: 60px;
+        height: 60px;
+      }
+
+      .cloud-one {
+        top: 20%;
+        left: 7%;
+      }
+
+      .cloud-two {
+        right: 6%;
+        bottom: 16%;
+        transform: scale(0.75);
+      }
+
+      .shell {
+        width: min(100%, 560px);
+        text-align: center;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 15px;
+        color: #42809b;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow::before,
+      .eyebrow::after {
+        width: 18px;
+        height: 1px;
+        background: #75b3c5;
+        content: "";
+      }
+
+      h1 {
+        margin: 0;
+        color: #16384d;
+        font-size: clamp(2.15rem, 7vw, 3.25rem);
+        font-weight: 850;
+        letter-spacing: -0.07em;
+        line-height: 1.18;
+      }
+
+      .intro {
+        margin: 14px 0 28px;
+        color: #648292;
+        font-size: 0.98rem;
+        line-height: 1.7;
+      }
+
+      .bird-card {
+        position: relative;
+        display: flex;
+        min-height: 326px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        padding: 31px 28px 30px;
+        border: 1px solid #ffffffc9;
+        border-radius: 30px;
+        background: #ffffffb8;
+        box-shadow:
+          0 24px 70px #3678951a,
+          inset 0 1px 0 #fff;
+        backdrop-filter: blur(16px);
+      }
+
+      .bird-card::before,
+      .bird-card::after {
+        position: absolute;
+        width: 150px;
+        aspect-ratio: 1;
+        border: 1px solid #91c8d520;
+        border-radius: 50%;
+        content: "";
+        pointer-events: none;
+      }
+
+      .bird-card::before {
+        top: -90px;
+        left: -68px;
+        box-shadow: 0 0 0 18px #91c8d510, 0 0 0 38px #91c8d509;
+      }
+
+      .bird-card::after {
+        right: -90px;
+        bottom: -96px;
+        width: 180px;
+        box-shadow: 0 0 0 18px #91c8d510, 0 0 0 38px #91c8d509;
+      }
+
+      .bird-art {
+        display: grid;
+        width: 94px;
+        height: 94px;
+        place-items: center;
+        margin-bottom: 15px;
+        border: 1px solid #d6edf3;
+        border-radius: 29px;
+        background: linear-gradient(145deg, #f3fcff, #dff3f8);
+        color: #438ba0;
+        font-size: 2.8rem;
+        transform: rotate(-5deg);
+      }
+
+      .bird-art span {
+        display: block;
+        transform: rotate(5deg);
+      }
+
+      .result-label {
+        margin: 0 0 7px;
+        color: #62a1b2;
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+      }
+
+      .bird-name {
+        margin: 0;
+        color: #183e53;
+        font-size: clamp(1.7rem, 5vw, 2.35rem);
+        font-weight: 850;
+        letter-spacing: -0.055em;
+      }
+
+      .scientific-name {
+        min-height: 1.4em;
+        margin: 7px 0 0;
+        color: #78909c;
+        font-family: Georgia, serif;
+        font-size: 0.94rem;
+        font-style: italic;
+      }
+
+      .bird-fact {
+        max-width: 380px;
+        min-height: 3.2em;
+        margin: 14px 0 0;
+        color: #5b7785;
+        font-size: 0.91rem;
+        line-height: 1.7;
+      }
+
+      .pick-button {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        min-height: 58px;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 21px;
+        padding: 0 27px;
+        border: 0;
+        border-radius: 18px;
+        background: #226b83;
+        box-shadow: 0 8px 18px #226b8330;
+        color: white;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 800;
+        transition:
+          transform 160ms ease,
+          background 160ms ease,
+          box-shadow 160ms ease;
+      }
+
+      .pick-button:hover {
+        transform: translateY(-2px);
+        background: #185b73;
+        box-shadow: 0 11px 22px #226b8340;
+      }
+
+      .pick-button:active {
+        transform: translateY(0);
+      }
+
+      .pick-button:focus-visible {
+        outline: 3px solid #ffca68;
+        outline-offset: 4px;
+      }
+
+      .pick-button svg {
+        width: 19px;
+        height: 19px;
+      }
+
+      .hint {
+        margin: 17px 0 0;
+        color: #7a98a5;
+        font-size: 0.79rem;
+      }
+
+      .bird-card.is-drawing .bird-art {
+        animation: flutter 500ms ease-in-out;
+      }
+
+      .bird-card.has-result .bird-art {
+        border-color: #bee4e7;
+        background: linear-gradient(145deg, #e6faf5, #d9f0f7);
+      }
+
+      @keyframes flutter {
+        0%,
+        100% {
+          transform: rotate(-5deg) translateY(0);
+        }
+        35% {
+          transform: rotate(9deg) translateY(-8px);
+        }
+        70% {
+          transform: rotate(-10deg) translateY(2px);
+        }
+      }
+
+      @media (max-width: 480px) {
+        .page {
+          padding: 38px 17px;
+        }
+
+        .sun {
+          top: 5%;
+          right: -20px;
+          width: 70px;
+        }
+
+        .cloud-one {
+          top: 14%;
+          left: -35px;
+          transform: scale(0.7);
+        }
+
+        .bird-card {
+          min-height: 340px;
+          padding: 28px 21px;
+          border-radius: 25px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <div class="sun" aria-hidden="true"></div>
+      <div class="cloud cloud-one" aria-hidden="true"></div>
+      <div class="cloud cloud-two" aria-hidden="true"></div>
+
+      <section class="shell" aria-labelledby="page-title">
+        <p class="eyebrow">A little bird picker</p>
+        <h1 id="page-title">오늘의 제비 뽑기</h1>
+        <p class="intro">
+          하늘을 나는 제비과 새들 중<br />
+          오늘 만날 한 종을 골라볼까요?
+        </p>
+
+        <div class="bird-card" id="bird-card" aria-live="polite" aria-atomic="true">
+          <div class="bird-art" aria-hidden="true"><span>🐦</span></div>
+          <p class="result-label" id="result-label">READY TO FLY</p>
+          <h2 class="bird-name" id="bird-name">누가 나올까요?</h2>
+          <p class="scientific-name" id="scientific-name"></p>
+          <p class="bird-fact" id="bird-fact">
+            버튼을 눌러 제비과 새 8종 중 한 마리를 뽑아보세요.
+          </p>
+        </div>
+
+        <button class="pick-button" id="pick-button" type="button">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M3 16.5c4.2-5.7 8.8-8.1 18-9.5-2.7 2.4-4.1 4.7-5.2 7.5 2.1-.6 3.8-.6 5.2-.3-4.3 4.7-10.2 6.1-15.5 2.3L3 16.5Z" />
+            <path d="M3 16.5 1.5 21" />
+          </svg>
+          <span>제비 한 마리 뽑기</span>
+        </button>
+        <p class="hint">제비과 새 8종 중 무작위로 골라요</p>
+      </section>
+    </main>
+
+    <script>
+      const birds = [
+        {
+          name: "제비",
+          english: "Barn Swallow",
+          scientific: "Hirundo rustica",
+          fact: "길게 갈라진 꼬리가 특징이에요. 탁 트인 들판 위를 날며 곤충을 잡아먹어요.",
+        },
+        {
+          name: "나무제비",
+          english: "Tree Swallow",
+          scientific: "Tachycineta bicolor",
+          fact: "햇빛을 받으면 등과 머리의 청록빛 깃털이 반짝여요. 나무 구멍에 둥지를 틀어요.",
+        },
+        {
+          name: "보라초록제비",
+          english: "Violet-green Swallow",
+          scientific: "Tachycineta thalassina",
+          fact: "초록빛 등과 보랏빛 머리가 아름다워요. 높은 고도의 숲과 절벽에서 볼 수 있어요.",
+        },
+        {
+          name: "강둑제비",
+          english: "Bank Swallow",
+          scientific: "Riparia riparia",
+          fact: "강가의 모래 절벽에 작은 굴을 파서 집단으로 둥지를 만드는 작은 제비예요.",
+        },
+        {
+          name: "절벽제비",
+          english: "Cliff Swallow",
+          scientific: "Petrochelidon pyrrhonota",
+          fact: "진흙으로 병처럼 생긴 둥지를 지어요. 다리와 절벽에 이웃들과 함께 모여 살아요.",
+        },
+        {
+          name: "거친날개제비",
+          english: "Northern Rough-winged Swallow",
+          scientific: "Stelgidopteryx serripennis",
+          fact: "날개 깃 가장자리가 미세하게 톱니처럼 생겼어요. 물가 가까운 굴에 둥지를 틀어요.",
+        },
+        {
+          name: "보라제비",
+          english: "Purple Martin",
+          scientific: "Progne subis",
+          fact: "북아메리카에서 가장 큰 제비예요. 수컷은 햇빛 아래서 짙은 남보라색으로 보여요.",
+        },
+        {
+          name: "동굴제비",
+          english: "Cave Swallow",
+          scientific: "Petrochelidon fulva",
+          fact: "동굴이나 싱크홀의 천장에 진흙 둥지를 만들어요. 따뜻한 지역에서 무리 지어 지내요.",
+        },
+      ];
+
+      const card = document.querySelector("#bird-card");
+      const button = document.querySelector("#pick-button");
+      const label = document.querySelector("#result-label");
+      const name = document.querySelector("#bird-name");
+      const scientificName = document.querySelector("#scientific-name");
+      const fact = document.querySelector("#bird-fact");
+      let previousIndex = -1;
+
+      button.addEventListener("click", () => {
+        let nextIndex = Math.floor(Math.random() * birds.length);
+        if (birds.length > 1 && nextIndex === previousIndex) {
+          nextIndex = (nextIndex + 1 + Math.floor(Math.random() * (birds.length - 1))) % birds.length;
+        }
+        previousIndex = nextIndex;
+
+        const bird = birds[nextIndex];
+        card.classList.remove("is-drawing");
+        void card.offsetWidth;
+        card.classList.add("is-drawing", "has-result");
+        label.textContent = "TODAY'S SWALLOW";
+        name.textContent = bird.name;
+        scientificName.textContent = `${bird.english} · ${bird.scientific}`;
+        fact.textContent = bird.fact;
+        button.querySelector("span").textContent = "다시 뽑기";
+      });
+
+      card.addEventListener("animationend", () => {
+        card.classList.remove("is-drawing");
+      });
+    </script>
+  </body>
+</html>
